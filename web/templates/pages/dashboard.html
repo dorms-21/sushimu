@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{{.Title}}</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+  <h1>Dashboard</h1>
+  <p>Bienvenido {{.UserName}}</p>
+  <p>Rol: {{.UserRole}}</p>
+
+  <nav>
+    <a href="/productos">Productos</a> |
+    <a href="/ordenes">Órdenes</a> |
+    <a href="/ventas">Ventas</a> |
+    <a href="/admin">Admin</a> |
+    <a href="/pos">POS</a> |
+    <a href="/logout">Cerrar sesión</a>
+  </nav>
+</body>
+</html>

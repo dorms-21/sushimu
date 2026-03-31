@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{{.Title}}</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+  <h1>Órdenes</h1>
+  <p>Usuario: {{.UserName}} | Rol: {{.UserRole}}</p>
+  <a href="/dashboard">Volver</a> | <a href="/logout">Cerrar sesión</a>
+
+  {{if .Error}}
+    <p style="color:red;">{{.Error}}</p>
+  {{end}}
+
+  <ul>
+    {{range .Data}}
+      <li>Mesa: {{.TableNo}} - Estado: {{.Status}} - Total: ${{.Total}}</li>
+    {{else}}
+      <li>No hay órdenes</li>
+    {{end}}
+  </ul>
+</body>
+</html>
