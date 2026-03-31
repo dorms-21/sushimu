@@ -1,8 +1,14 @@
+DELETE FROM order_items;
+DELETE FROM sales;
+DELETE FROM orders;
+DELETE FROM products;
+DELETE FROM users;
+
 INSERT INTO users (username, password_hash, name, role, active)
 VALUES
-('admin', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Administrador', 'admin', true),
-('mesero', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Mesero Principal', 'mesero', true),
-('cliente', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Cliente Demo', 'cliente', true);
+('admin', '$2a$10$QfVv7yumxg/rEUyHvpYTluwFwo7gsb2O2o6Ts4ETmKX3cK2ZVeqNe', 'Administrador', 'admin', true),
+('mesero', '$2a$10$QfVv7yumxg/rEUyHvpYTluwFwo7gsb2O2o6Ts4ETmKX3cK2ZVeqNe', 'Mesero Principal', 'mesero', true),
+('cliente', '$2a$10$QfVv7yumxg/rEUyHvpYTluwFwo7gsb2O2o6Ts4ETmKX3cK2ZVeqNe', 'Cliente Demo', 'cliente', true);
 
 INSERT INTO products (name, description, price, stock, image_url, active)
 VALUES
