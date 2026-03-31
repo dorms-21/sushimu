@@ -5,7 +5,7 @@ import (
 	"html/template"
 	"net/http"
 
-	"restaurante-go/internal/middleware"
+	"restaurante-go/internal/repository"
 )
 
 type App struct {
@@ -14,11 +14,14 @@ type App struct {
 }
 
 type PageData struct {
-	Title    string
-	UserName string
-	UserRole string
-	Data     any
-	Error    string
+	Title       string
+	UserName    string
+	UserRole    string
+	Data        any
+	Error       string
+	Success     string
+	Permissions map[string]bool
+	Module      string
 }
 
 func NewApp(db *sql.DB, templates *template.Template) *App {
@@ -50,6 +53,37 @@ func getSessionData(r *http.Request) (string, string) {
 	return username, role
 }
 
+func (a *App) getPermissions(role, module string) map[string]bool {
+	repo := repository.NewPermissionRepository(a.DB)
+	perms, err := repo.GetPermission(role, module)
+	if err != nil {
+		return map[string]bool{
+			"view":   false,
+			"create": false,
+			"edit":   false,
+			"delete": false,
+		}
+	}
+	return perms
+}
+
+func (a *App) requireModuleAccess(w http.ResponseWriter, r *http.Request, module string) (string, string, map[string]bool, bool) {
+	username, role := getSessionData(r)
+
+	if username == "" || role == "" {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return "", "", nil, false
+	}
+
+	perms := a.getPermissions(role, module)
+	if !perms["view"] {
+		http.Redirect(w, r, "/unauthorized", http.StatusSeeOther)
+		return "", "", nil, false
+	}
+
+	return username, role, perms, true
+}
+
 func (a *App) HandleHome(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
@@ -67,27 +101,16 @@ func (a *App) HandleUnauthorized(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) HandleDashboard(w http.ResponseWriter, r *http.Request) {
-	handler := middleware.RequireAuth(func(w http.ResponseWriter, r *http.Request) {
-		username, role := getSessionData(r)
-		a.render(w, "dashboard.html", PageData{
-			Title:    "Dashboard",
-			UserName: username,
-			UserRole: role,
-		})
-	})
-	handler(w, r)
-}
+	username, role, perms, ok := a.requireModuleAccess(w, r, "dashboard")
+	if !ok {
+		return
+	}
 
-func (a *App) HandleAdmin(w http.ResponseWriter, r *http.Request) {
-	handler := middleware.RequireAuth(
-		middleware.RequireRole("admin")(func(w http.ResponseWriter, r *http.Request) {
-			username, role := getSessionData(r)
-			a.render(w, "admin.html", PageData{
-				Title:    "Administración",
-				UserName: username,
-				UserRole: role,
-			})
-		}),
-	)
-	handler(w, r)
+	a.render(w, "dashboard.html", PageData{
+		Title:       "Dashboard",
+		UserName:    username,
+		UserRole:    role,
+		Permissions: perms,
+		Module:      "dashboard",
+	})
 }

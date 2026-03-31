@@ -6,17 +6,41 @@
   <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
-  <h1>Dashboard</h1>
-  <p>Bienvenido {{.UserName}}</p>
-  <p>Rol: {{.UserRole}}</p>
+  <div class="container">
+    <div class="topbar">
+      <div class="brand">SUSHIMU</div>
+      <div class="user-info">Bienvenido {{.UserName}} | Rol: {{.UserRole}}</div>
+    </div>
 
-  <nav>
-    <a href="/productos">Productos</a> |
-    <a href="/ordenes">Órdenes</a> |
-    <a href="/ventas">Ventas</a> |
-    <a href="/admin">Admin</a> |
-    <a href="/pos">POS</a> |
-    <a href="/logout">Cerrar sesión</a>
-  </nav>
+    <section class="hero">
+      <h1>Dashboard</h1>
+      <p>Centro de control del restaurante.</p>
+      <div class="actions">
+        <a href="/productos">Productos</a>
+        <a href="/ordenes">Órdenes</a>
+        <a href="/ventas">Ventas</a>
+        <a href="/admin">Administración</a>
+        <a href="/pos">POS</a>
+        <a href="/logout">Cerrar sesión</a>
+      </div>
+    </section>
+
+    <div class="grid grid-3 mt-3">
+      <div class="stat-card">
+        <h3>Rol actual</h3>
+        <div class="number">{{.UserRole}}</div>
+      </div>
+
+      <div class="stat-card">
+        <h3>Usuario</h3>
+        <div class="number">{{.UserName}}</div>
+      </div>
+
+      <div class="stat-card">
+        <h3>Sistema</h3>
+        <div class="number">Activo</div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

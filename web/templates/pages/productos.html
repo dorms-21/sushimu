@@ -6,20 +6,134 @@
   <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
-  <h1>Productos</h1>
-  <p>Usuario: {{.UserName}} | Rol: {{.UserRole}}</p>
-  <a href="/dashboard">Volver</a> | <a href="/logout">Cerrar sesión</a>
+  <div class="container">
+    <div class="topbar">
+      <div class="brand">SUSHIMU</div>
+      <div class="user-info">Bienvenido {{.UserName}} | Rol: {{.UserRole}}</div>
+    </div>
 
-  {{if .Error}}
-    <p style="color:red;">{{.Error}}</p>
-  {{end}}
+    <section class="hero">
+      <h1>Productos</h1>
+      <p>Gestión de productos del restaurante.</p>
+      <div class="actions">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/ordenes">Órdenes</a>
+        <a href="/ventas">Ventas</a>
+        <a href="/pos">POS</a>
+        <a href="/logout">Cerrar sesión</a>
+      </div>
+    </section>
 
-  <ul>
-    {{range .Data}}
-      <li>{{.Name}} - ${{.Price}} - Stock: {{.Stock}}</li>
-    {{else}}
-      <li>No hay productos</li>
+    {{if .Error}}
+      <div class="alert alert-error">{{.Error}}</div>
     {{end}}
-  </ul>
+
+    {{if .Success}}
+      <div class="alert alert-success">{{.Success}}</div>
+    {{end}}
+
+    {{if .Permissions.create}}
+    <section class="card mt-3">
+      <h2>Crear producto</h2>
+      <form method="POST" action="/productos/crear">
+        <label>Nombre</label>
+        <input type="text" name="name" required>
+
+        <label>Descripción</label>
+        <textarea name="description"></textarea>
+
+        <label>Precio</label>
+        <input type="number" name="price" step="0.01" required>
+
+        <label>Stock</label>
+        <input type="number" name="stock" required>
+
+        <label>URL de imagen</label>
+        <input type="text" name="image_url">
+
+        <label>
+          <input type="checkbox" name="active" checked style="width:auto;"> Activo
+        </label>
+
+        <button type="submit">Crear producto</button>
+      </form>
+    </section>
+    {{end}}
+
+    <section class="table-container mt-3">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Precio</th>
+            <th>Stock</th>
+            <th>Activo</th>
+            {{if or .Permissions.edit .Permissions.delete}}
+            <th>Acciones</th>
+            {{end}}
+          </tr>
+        </thead>
+        <tbody>
+          {{range .Data}}
+          <tr>
+            <td>{{.ID}}</td>
+            <td>{{.Name}}</td>
+            <td>{{.Description}}</td>
+            <td>${{.Price}}</td>
+            <td>{{.Stock}}</td>
+            <td>{{if .Active}}Sí{{else}}No{{end}}</td>
+
+            {{if or $.Permissions.edit $.Permissions.delete}}
+            <td>
+              {{if $.Permissions.edit}}
+              <details class="mb-2">
+                <summary>Editar</summary>
+                <form method="POST" action="/productos/editar" class="mt-2">
+                  <input type="hidden" name="id" value="{{.ID}}">
+
+                  <label>Nombre</label>
+                  <input type="text" name="name" value="{{.Name}}" required>
+
+                  <label>Descripción</label>
+                  <textarea name="description">{{.Description}}</textarea>
+
+                  <label>Precio</label>
+                  <input type="number" name="price" step="0.01" value="{{.Price}}" required>
+
+                  <label>Stock</label>
+                  <input type="number" name="stock" value="{{.Stock}}" required>
+
+                  <label>URL de imagen</label>
+                  <input type="text" name="image_url" value="{{.ImageURL}}">
+
+                  <label>
+                    <input type="checkbox" name="active" {{if .Active}}checked{{end}} style="width:auto;"> Activo
+                  </label>
+
+                  <button type="submit" class="btn-secondary">Guardar cambios</button>
+                </form>
+              </details>
+              {{end}}
+
+              {{if $.Permissions.delete}}
+              <form method="POST" action="/productos/eliminar" onsubmit="return confirm('¿Eliminar este producto?');">
+                <input type="hidden" name="id" value="{{.ID}}">
+                <button type="submit" class="btn-danger">Eliminar</button>
+              </form>
+              {{end}}
+            </td>
+            {{end}}
+          </tr>
+          {{else}}
+          <tr>
+            <td colspan="7">No hay productos registrados.</td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+    </section>
+  </div>
 </body>
 </html>
