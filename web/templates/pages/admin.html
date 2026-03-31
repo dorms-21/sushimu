@@ -6,11 +6,115 @@
   <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
-  <h1>Panel de administración</h1>
-  <p>Bienvenido {{.UserName}}</p>
-  <p>Rol: {{.UserRole}}</p>
+  <div class="container">
+    <div class="topbar">
+      <div class="brand">SUSHIMU</div>
+      <div class="user-info">Bienvenido {{.UserName}} | Rol: {{.UserRole}}</div>
+    </div>
 
-  <a href="/dashboard">Volver</a> |
-  <a href="/logout">Cerrar sesión</a>
+    <section class="hero">
+      <h1>Administración</h1>
+      <div class="actions">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/productos">Productos</a>
+        <a href="/ordenes">Órdenes</a>
+        <a href="/ventas">Ventas</a>
+        <a href="/logout">Cerrar sesión</a>
+      </div>
+    </section>
+
+    {{if .Error}}<div class="alert alert-error">{{.Error}}</div>{{end}}
+    {{if .Success}}<div class="alert alert-success">{{.Success}}</div>{{end}}
+
+    {{if .Permissions.create}}
+    <section class="card mt-3">
+      <h2>Crear usuario</h2>
+      <form method="POST" action="/admin/usuarios/crear">
+        <label>Username</label>
+        <input type="text" name="username" required>
+
+        <label>Nombre</label>
+        <input type="text" name="name" required>
+
+        <label>Contraseña</label>
+        <input type="password" name="password" required>
+
+        <label>Rol</label>
+        <select name="role" required>
+          <option value="admin">admin</option>
+          <option value="mesero">mesero</option>
+          <option value="cliente">cliente</option>
+        </select>
+
+        <label>
+          <input type="checkbox" name="active" checked style="width:auto;"> Activo
+        </label>
+
+        <button type="submit">Crear usuario</button>
+      </form>
+    </section>
+    {{end}}
+
+    <section class="table-container mt-3">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Nombre</th>
+            <th>Rol</th>
+            <th>Activo</th>
+            {{if or .Permissions.edit .Permissions.delete}}<th>Acciones</th>{{end}}
+          </tr>
+        </thead>
+        <tbody>
+          {{range .Data}}
+          <tr>
+            <td>{{.ID}}</td>
+            <td>{{.Username}}</td>
+            <td>{{.Name}}</td>
+            <td>{{.Role}}</td>
+            <td>{{if .Active}}Sí{{else}}No{{end}}</td>
+            {{if or $.Permissions.edit $.Permissions.delete}}
+            <td>
+              {{if $.Permissions.edit}}
+              <details>
+                <summary>Editar</summary>
+                <form method="POST" action="/admin/usuarios/editar" class="mt-2">
+                  <input type="hidden" name="id" value="{{.ID}}">
+                  <label>Username</label>
+                  <input type="text" name="username" value="{{.Username}}" required>
+                  <label>Nombre</label>
+                  <input type="text" name="name" value="{{.Name}}" required>
+                  <label>Rol</label>
+                  <select name="role" required>
+                    <option value="admin" {{if eq .Role "admin"}}selected{{end}}>admin</option>
+                    <option value="mesero" {{if eq .Role "mesero"}}selected{{end}}>mesero</option>
+                    <option value="cliente" {{if eq .Role "cliente"}}selected{{end}}>cliente</option>
+                  </select>
+                  <label>
+                    <input type="checkbox" name="active" {{if .Active}}checked{{end}} style="width:auto;"> Activo
+                  </label>
+                  <button type="submit" class="btn-secondary">Guardar cambios</button>
+                </form>
+              </details>
+              {{end}}
+
+              {{if $.Permissions.delete}}
+              <form method="POST" action="/admin/usuarios/eliminar" onsubmit="return confirm('¿Eliminar este usuario?');">
+                <input type="hidden" name="id" value="{{.ID}}">
+                <button type="submit" class="btn-danger">Eliminar</button>
+              </form>
+              {{end}}
+            </td>
+            {{end}}
+          </tr>
+          {{else}}
+          <tr><td colspan="6">No hay usuarios.</td></tr>
+          {{end}}
+        </tbody>
+      </table>
+    </section>
+  </div>
 </body>
 </html>

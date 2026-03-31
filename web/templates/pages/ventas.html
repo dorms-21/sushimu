@@ -6,10 +6,101 @@
   <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
-  <h1>Ventas</h1>
-  <p>Usuario: {{.UserName}} | Rol: {{.UserRole}}</p>
+  <div class="container">
+    <div class="topbar">
+      <div class="brand">SUSHIMU</div>
+      <div class="user-info">Bienvenido {{.UserName}} | Rol: {{.UserRole}}</div>
+    </div>
 
-  <a href="/dashboard">Volver</a> |
-  <a href="/logout">Cerrar sesión</a>
+    <section class="hero">
+      <h1>Ventas</h1>
+      <div class="actions">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/productos">Productos</a>
+        <a href="/ordenes">Órdenes</a>
+        <a href="/logout">Cerrar sesión</a>
+      </div>
+    </section>
+
+    {{if .Error}}<div class="alert alert-error">{{.Error}}</div>{{end}}
+    {{if .Success}}<div class="alert alert-success">{{.Success}}</div>{{end}}
+
+    {{if .Permissions.create}}
+    <section class="card mt-3">
+      <h2>Crear venta</h2>
+      <form method="POST" action="/ventas/crear">
+        <label>ID Orden</label>
+        <input type="number" name="order_id" required>
+
+        <label>Método de pago</label>
+        <input type="text" name="payment_method" required>
+
+        <label>Monto</label>
+        <input type="number" step="0.01" name="amount" required>
+
+        <label>Estado</label>
+        <input type="text" name="status" value="pagado" required>
+
+        <button type="submit">Crear venta</button>
+      </form>
+    </section>
+    {{end}}
+
+    <section class="table-container mt-3">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>ID Orden</th>
+            <th>Método</th>
+            <th>Monto</th>
+            <th>Estado</th>
+            {{if or .Permissions.edit .Permissions.delete}}<th>Acciones</th>{{end}}
+          </tr>
+        </thead>
+        <tbody>
+          {{range .Data}}
+          <tr>
+            <td>{{.ID}}</td>
+            <td>{{.OrderID}}</td>
+            <td>{{.PaymentMethod}}</td>
+            <td>${{.Amount}}</td>
+            <td>{{.Status}}</td>
+            {{if or $.Permissions.edit $.Permissions.delete}}
+            <td>
+              {{if $.Permissions.edit}}
+              <details>
+                <summary>Editar</summary>
+                <form method="POST" action="/ventas/editar" class="mt-2">
+                  <input type="hidden" name="id" value="{{.ID}}">
+                  <label>ID Orden</label>
+                  <input type="number" name="order_id" value="{{.OrderID}}" required>
+                  <label>Método de pago</label>
+                  <input type="text" name="payment_method" value="{{.PaymentMethod}}" required>
+                  <label>Monto</label>
+                  <input type="number" step="0.01" name="amount" value="{{.Amount}}" required>
+                  <label>Estado</label>
+                  <input type="text" name="status" value="{{.Status}}" required>
+                  <button type="submit" class="btn-secondary">Guardar cambios</button>
+                </form>
+              </details>
+              {{end}}
+
+              {{if $.Permissions.delete}}
+              <form method="POST" action="/ventas/eliminar" onsubmit="return confirm('¿Eliminar esta venta?');">
+                <input type="hidden" name="id" value="{{.ID}}">
+                <button type="submit" class="btn-danger">Eliminar</button>
+              </form>
+              {{end}}
+            </td>
+            {{end}}
+          </tr>
+          {{else}}
+          <tr><td colspan="6">No hay ventas.</td></tr>
+          {{end}}
+        </tbody>
+      </table>
+    </section>
+  </div>
 </body>
 </html>

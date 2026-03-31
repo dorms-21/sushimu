@@ -10,12 +10,3 @@ type Order struct {
 	Total     float64
 	CreatedAt time.Time
 }
-
-type OrderItem struct {
-	ID        int
-	OrderID   int
-	ProductID int
-	Quantity  int
-	Price     float64
-	Subtotal  float64
-}

@@ -25,23 +25,36 @@ func (r *OrderRepository) GetAll() ([]models.Order, error) {
 	}
 	defer rows.Close()
 
-	var orders []models.Order
-
+	var items []models.Order
 	for rows.Next() {
 		var o models.Order
-		err := rows.Scan(
-			&o.ID,
-			&o.TableNo,
-			&o.UserID,
-			&o.Status,
-			&o.Total,
-			&o.CreatedAt,
-		)
+		err := rows.Scan(&o.ID, &o.TableNo, &o.UserID, &o.Status, &o.Total, &o.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
-		orders = append(orders, o)
+		items = append(items, o)
 	}
+	return items, nil
+}
 
-	return orders, nil
+func (r *OrderRepository) Create(o *models.Order) error {
+	_, err := r.DB.Exec(`
+		INSERT INTO orders (table_no, user_id, status, total)
+		VALUES ($1, $2, $3, $4)
+	`, o.TableNo, o.UserID, o.Status, o.Total)
+	return err
+}
+
+func (r *OrderRepository) Update(o *models.Order) error {
+	_, err := r.DB.Exec(`
+		UPDATE orders
+		SET table_no = $1, user_id = $2, status = $3, total = $4
+		WHERE id = $5
+	`, o.TableNo, o.UserID, o.Status, o.Total, o.ID)
+	return err
+}
+
+func (r *OrderRepository) Delete(id int) error {
+	_, err := r.DB.Exec(`DELETE FROM orders WHERE id = $1`, id)
+	return err
 }
